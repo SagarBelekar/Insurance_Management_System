@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Contact Us - SecureLife{% endblock %}
+
+{% block content %}
+
+{% load static %}
+
+<style>
+    body {
+        background-image: url("{% static 'landing.jpg' %}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        min-height: 100vh;
+    }
+</style>
+
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9">
+            <div class="card card-custom border-0 shadow-lg p-4 p-md-5 bg-white">
+                <div class="text-center mb-4">
+                    <div class="rounded-circle bg-primary-subtle text-primary mx-auto d-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
+                        <i class="fa-solid fa-envelope-open-text fa-xl"></i>
+                    </div>
+                    <h3 class="fw-bold">Contact Us</h3>
+                    <p class="text-muted small">We'd love to hear from you. Send us your inquiry anytime.</p>
+                </div>
+
+                <!-- Aapka form bina kisi internal badlaav ke -->
+                <form method="POST" class="">
+                    {% csrf_token %}
+                    <div class="row g-3 mb-3 ">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Your Name</label>
+                            <input type="text" name="name" class="form-control" placeholder="Full name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Email Address</label>
+                            <input type="email" name="email" class="form-control" placeholder="name@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Subject</label>
+                        <input type="text" name="subject" class="form-control" placeholder="Topic or policy inquiry" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Message</label>
+                        <textarea name="message" rows="4" class="form-control" placeholder="Type your message here..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-custom w-100 py-2 fw-semibold shadow-sm">
+                        <i class="fa-solid fa-paper-plane me-2"></i> Submit Inquiry
+                    </button>
+
+                    <div class="text-center mt-5">
+                        <a href="{% url 'landing_page' %}" class="btn btn-outline-secondary btn-sm px-3 rounded-pill">
+                            <i class="fa-solid fa-arrow-left me-1"></i> Back
+                        </a>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

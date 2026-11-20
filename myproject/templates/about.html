@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}About Us - SecureLife{% endblock %}
+
+{% block content %}
+
+{% load static %}
+
+<style>
+    body {
+        background-image: url("{% static 'landing.jpg' %}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        min-height: 100vh;
+    }
+</style>
+
+
+<div class="container py-5 my-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Bootstrap 5: bg-primary-subtle gives the exact soft blue background -->
+            <div class="bg-primary-subtle border border-primary-subtle rounded-4 p-5 text-center shadow-sm">
+                
+                <h2 class="fw-bold text-dark mb-4 display-6">About Us</h2>
+                
+                <div class="row justify-content-center">
+                    <div class="col-lg-11">
+                        <p class="text-secondary fs-5 mb-0 lh-lg">
+                            We are a tech-driven company committed to transforming the insurance experience by making it more accessible, transparent, and efficient. Inspired by PolicyBazar, our system is tailored for Indian users looking for a smart and secure platform to manage all types of insurance.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{% url 'landing_page' %}" class="btn btn-outline-secondary btn-sm px-3 rounded-pill text-white">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Back
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

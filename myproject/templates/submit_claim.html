@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}Submit Claim - SecureLife{% endblock %}
+
+{% block content %}
+
+
+{% load static %}
+
+<style>
+    body {
+        background-image: url("{% static 'user_background.png' %}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        min-height: 100vh;
+    }
+</style>
+
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow-lg border-0 rounded-4 p-4 p-md-5 bg-white">
+                
+                <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+                    <div class="me-3 text-danger">
+                        <i class="fa-solid fa-file-shield fa-2x"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold text-dark mb-0">File an Insurance Claim</h4>
+                        <small class="text-muted">Enter your policy number and attach supporting medical/incident documents.</small>
+                    </div>
+                </div>
+
+                <!-- Django Messages / Alert Notice -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Important: enctype="multipart/form-data" is required for file uploads -->
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- 1. Policy Number -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-dark">
+                            <i class="fa-solid fa-hashtag text-primary me-1"></i> Policy Number
+                        </label>
+                        {{ form.policy_number }}
+                        {% if form.policy_number.errors %}
+                            <div class="text-danger small mt-1">{{ form.policy_number.errors.0 }}</div>
+                        {% endif %}
+
+                    </div>
+
+                    <!-- 2. Requested Claim Amount -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-dark">
+                            <i class="fa-solid fa-indian-rupee-sign text-success me-1"></i> Requested Claim Amount (₹)
+                        </label>
+                        {{ form.claim_amount }}
+                        {% if form.claim_amount.errors %}
+                            <div class="text-danger small mt-1">{{ form.claim_amount.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- 3. Reason for Claim -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-dark">
+                            <i class="fa-solid fa-notes-medical text-danger me-1"></i> Reason 
+                        </label>
+                        {{ form.reason }}
+                        {% if form.reason.errors %}
+                            <div class="text-danger small mt-1">{{ form.reason.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- 4. Supporting Document Upload -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-dark">
+                            <i class="fa-solid fa-paperclip text-info me-1"></i> Upload Supporting Documents 
+                        </label>
+                        {{ form.document }}
+                        {% if form.document.errors %}
+                            <div class="text-danger small mt-1">{{ form.document.errors.0 }}</div>
+                        {% endif %}
+                        <small class="text-muted d-block mt-1">
+                            Prescriptions, discharge summary, ya invoice upload karein (PDF, JPG, PNG).
+                        </small>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-danger btn-lg rounded-pill fw-semibold shadow-sm">
+                            <i class="fa-solid fa-paper-plane me-2"></i> Submit Claim Request
+                        </button>
+                        <a href="{% url 'my_policies' %}" class="btn btn-outline-secondary rounded-pill">
+                            Cancel & Back to My Policies
+                        </a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

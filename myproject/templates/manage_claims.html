@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block title %}Manage All Claims - Admin Portal{% endblock %}
+
+{% block content %}
+
+{% load static %}
+
+<style>
+    body {
+        background-image: url("{% static 'admin_background.jpg' %}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        min-height: 100vh;
+    }
+</style>
+
+
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1 text-white">All Insurance Claims</h3>
+            <small class="text-white">Review submitted claims, verify policy numbers and uploaded documents.</small>
+        </div>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary btn-sm text-white">
+            <i class="fa-solid fa-arrow-left me-1 "></i> Dashboard
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card card-custom p-3 border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Policy ID</th>
+                        <th>User & Plan</th>
+                        <th>Requested Amount</th>
+                        <th>Reason</th>
+                        <th>Document</th>
+                        <th>Status</th>
+                        <th class="text-end pe-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in claims %}
+                    <tr>
+
+                        <!-- Generated Policy ID -->
+                        <td>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace px-2 py-1">
+                                {{ c.policy.policy_number|default:"N/A" }}
+                            </span>
+                        </td>
+
+                        <!-- User & Plan -->
+                        <td>
+                            <div class="fw-semibold text-dark">{{ c.policy.user.username }}</div>
+                            <small class="text-muted">{{ c.policy.plan.title }}</small>
+                        </td>
+
+                        <!-- Amount -->
+                        <td class="fw-bold text-danger">₹{{ c.claim_amount }}</td>
+
+                        <!-- Reason -->
+                        <td style="max-width: 180px;">
+                            <span class="text-truncate d-inline-block small text-secondary" style="max-width: 170px;" title="{{ c.reason }}">
+                                {{ c.reason }}
+                            </span>
+                        </td>
+
+                        <!-- Uploaded Document Link / Button -->
+                        <td>
+                            {% if c.document %}
+                                <a href="{{ c.document.url }}" target="_blank" class="btn btn-sm btn-outline-primary py-1 px-2">
+                                    <i class="fa-solid fa-file-arrow-down me-1"></i> View Doc
+                                </a>
+                            {% else %}
+                                <span class="badge bg-light text-muted border">No Doc</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Status Badge -->
+                        <td>
+                            <span class="badge {% if c.status == 'Approved' %}bg-success{% elif c.status == 'Pending' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                                {{ c.status }}
+                            </span>
+                        </td>
+
+                        <!-- Action Buttons -->
+                        <td class="text-end pe-3">
+                            {% if c.status == 'Pending' %}
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'claim_action' c.id 'approve' %}" class="btn btn-sm btn-success px-2 py-1" title="Approve">
+                                        <i class="fa-solid fa-check"></i> Approve
+                                    </a>
+                                    <a href="{% url 'claim_action' c.id 'reject' %}" class="btn btn-sm btn-danger px-2 py-1" title="Reject">
+                                        <i class="fa-solid fa-xmark"></i> Reject
+                                    </a>
+                                </div>
+                            {% else %}
+                                <small class="text-muted fst-italic">{{ c.admin_remark|default:"Processed" }}</small>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-muted">
+                            Koi claims submit nahi hue hain abhi tak.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

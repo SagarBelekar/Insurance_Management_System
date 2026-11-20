@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}User Dashboard{% endblock %}
+{% block content %}
+
+
+
+{% load static %}
+
+<style>
+    body {
+        background-image: url("{% static 'user_background.png' %}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        min-height: 100vh;
+    }
+</style>
+
+<div class="container py-4">
+    <h3 class="fw-bold mb-4 text-white">Welcome back, {{ user.first_name|default:user.username }}!</h3>
+    
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card card-custom p-3 bg-white border-start border-primary border-4 shadow-sm">
+                <h6 class="text-muted">Total Policies</h6>
+                <h3 class="fw-bold">{{ total_policies }}</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-custom p-3 bg-white border-start border-success border-4 shadow-sm">
+                <h6 class="text-muted">Active Policies</h6>
+                <h3 class="fw-bold text-success">{{ active_policies }}</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-custom p-3 bg-white border-start border-warning border-4 shadow-sm">
+                <h6 class="text-muted">Claims Filed</h6>
+                <h3 class="fw-bold text-warning">{{ total_claims }}</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-custom p-3 bg-white border-start border-danger border-4 shadow-sm">
+                <h6 class="text-muted">Total Spent</h6>
+                <h3 class="fw-bold">₹{{ total_spent }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Policies Table -->
+    <div class="card card-custom p-4 border-0 shadow-sm rounded-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">My Enrolled Policies</h5>
+            <a href="{% url 'browse_plans' %}" class="btn btn-sm btn-primary-custom">+ Buy New Plan</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Policy ID</th>
+                        <th>Plan Name</th>
+                        <th>Cover Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in recent_policies %}
+                    <tr>
+                        <td>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace px-2 py-1 fw-bold">
+                                {{ p.policy_number|default:"N/A" }}
+                            </span>
+                        </td>
+                        <td>{{ p.plan.title }} ({{ p.plan_tier }})</td>
+                        <td>₹{{ p.plan.sum_insured }}</td>
+                        <td>
+                            <span class="badge {% if p.status == 'Active' %}bg-success{% elif p.status == 'Pending' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                                {{ p.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'submit_claim' p.id %}" class="btn btn-sm btn-outline-danger">Claim</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">No policies active. Explore plans to get insured.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

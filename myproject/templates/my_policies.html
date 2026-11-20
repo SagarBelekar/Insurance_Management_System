@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block title %}My Policies - SecureLife{% endblock %}
+
+{% block content %}
+
+
+{% load static %}
+
+<style>
+    body {
+        background-image: url("{% static 'user_background.png' %}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        min-height: 100vh;
+    }
+</style>
+
+
+<div class="container py-5">
+    <!-- Header Section -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold text-white mb-1">My Enrolled Policies</h3>
+            <p class=" small mb-0 text-white">Track your active plans, policy numbers, tenure, and covered family members.</p>
+        </div>
+        <a href="{% url 'browse_plans' %}" class="btn btn-primary btn-sm px-3 py-2 rounded-3 fw-semibold">
+            <i class="fa-solid fa-plus me-1"></i> Buy New Policy
+        </a>
+    </div>
+
+    {% if policies %}
+        <div class="row g-4">
+            {% for policy in policies %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm rounded-4 p-4 bg-white position-relative d-flex flex-column">
+                    
+                    <!-- Policy Number Badge & Status -->
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 font-monospace fw-bold">
+                                <i class="fa-solid fa-hashtag me-1"></i>{{ policy.policy_number }}
+                            </span>
+                            <h5 class="fw-bold text-dark mt-2 mb-0">{{ policy.plan.title }}</h5>
+                        </div>
+                        <span class="badge {% if policy.status == 'Active' %}bg-success{% elif policy.status == 'Pending' %}bg-warning text-dark{% else %}bg-secondary{% endif %} rounded-pill px-3 py-1">
+                            {{ policy.status }}
+                        </span>
+                    </div>
+
+                    <!-- Plan Overview Box -->
+                    <div class="bg-light rounded-3 p-3 mb-3 border">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small">Selected Tier:</span>
+                            <span class="badge bg-info-subtle text-info-emphasis fw-semibold">{{ policy.plan_tier }} Plan</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small">Sum Insured:</span>
+                            <strong class="text-dark">₹{{ policy.plan.sum_insured }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small">Paid Premium:</span>
+                            <strong class="text-success">₹{{ policy.paid_amount }} /yr</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted small">Plan Tenure:</span>
+                            <span class="badge bg-secondary-subtle text-dark fw-bold">
+                                {{ policy.plan.tenure_years }} Year{% if policy.plan.tenure_years > 1 %}s{% endif %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Covered Family Members -->
+                    <div class="small mb-3">
+                        {% if policy.members.all %}
+                        <div class="text-muted">
+                            <div class="fw-semibold text-dark mb-1">
+                                <i class="fa-solid fa-users text-primary me-1"></i> Covered Members ({{ policy.members.count }}):
+                            </div>
+                            <ul class="mb-0 ps-3 text-secondary">
+                                {% for m in policy.members.all %}
+                                    <li>
+                                        <strong>{{ m.name }}</strong> 
+                                        ({{ m.relation|title }}, {{ m.age }} yrs{% if m.gender %}, {{ m.gender }}{% endif %})
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        {% if policy.nominee_name %}
+                        <div class="text-muted mt-2 pt-2 border-top">
+                            <i class="fa-solid fa-user-shield text-primary me-1"></i> 
+                            <strong>Nominee:</strong> {{ policy.nominee_name }} ({{ policy.nominee_relation }})
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Action Button -->
+                    <div class="mt-auto pt-3 border-top">
+                        <a href="{% url 'submit_claim' policy.id %}" class="btn btn-outline-danger btn-sm w-100 py-2 rounded-3 fw-semibold">
+                            <i class="fa-solid fa-file-invoice-dollar me-1"></i> File a Claim
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5 bg-white rounded-4 shadow-sm p-4">
+            <div class="text-muted mb-3">
+                <i class="fa-solid fa-shield-halved fa-3x"></i>
+            </div>
+            <h5 class="fw-bold text-dark">No Active Policies Found</h5>
+            <p class="text-muted">Aapke paas abhi koi active policy nahi hai. Plans browse karein aur instant cover activate karein.</p>
+            <a href="{% url 'browse_plans' %}" class="btn btn-primary px-4 py-2 rounded-3 fw-semibold">Browse Plans</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

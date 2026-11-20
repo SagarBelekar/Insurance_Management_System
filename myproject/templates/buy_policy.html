@@ -1,0 +1,278 @@
+{% extends 'base.html' %}
+{% block title %}Health Insurance Enrollment - {{ plan.title }}{% endblock %}
+
+{% block content %}
+
+
+
+{% load static %}
+
+<style>
+    body {
+        background-image: url("{% static 'user_background.png' %}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        min-height: 100vh;
+    }
+</style>
+
+
+
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+
+            <!-- Card Box Styled Exactly Like The Video Modal -->
+            <div class="card shadow-lg border-0 rounded-4 p-4 p-md-5 bg-white position-relative">
+                
+                <!-- Modal-Like Top Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold text-dark mb-0">Health Insurance Enrollment</h5>
+                    <a href="{% url 'browse_plans' %}" class="text-secondary text-decoration-none fs-5">&times;</a>
+                </div>
+
+                <form method="POST" id="enrollmentWizardForm">
+                    {% csrf_token %}
+
+                    <!-- ==================================================== -->
+                    <!-- STEP 1: ENTER DETAILS -->
+                    <!-- ==================================================== -->
+                    <div id="step-1" class="wizard-step">
+                        <div class="text-center mb-3">
+                            <span class="text-secondary small fw-semibold">{{ user_email }}</span>
+                        </div>
+
+                        <div id="membersContainer">
+                            <!-- Member 1 Block -->
+                            <div class="member-card mb-3">
+                                <span class="small text-muted fw-semibold d-block mb-1">Member 1</span>
+                                <div class="mb-2">
+                                    <input type="text" name="member_name[]" class="form-control form-control-sm py-2" placeholder="Full Name" value="{{ request.user.get_full_name|default:'' }}" required>
+                                </div>
+                                <div class="mb-2">
+                                    <input type="number" name="member_age[]" class="form-control form-control-sm py-2" placeholder="Age" min="1" max="100" required>
+                                </div>
+                                <div class="mb-2">
+                                    <select name="member_gender[]" class="form-select form-select-sm py-2" required>
+                                        <option value="Male" selected>Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="mb-2">
+                                    <input type="text" name="member_relation[]" class="form-control form-control-sm py-2" placeholder="Relation (e.g. self, spouse, child)" value="self" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Add More Family Member Link -->
+                        <div class="mb-4">
+                            <a href="javascript:void(0)" class="text-primary text-decoration-none small fw-semibold" id="addMemberBtn">
+                                + Add More Family Member
+                            </a>
+                        </div>
+
+                        <!-- Step 1 Next Button -->
+                        <div class="text-end">
+                            <button type="button" class="btn btn-primary px-4 py-2 rounded-3 fw-semibold" onclick="validateStep1AndProceed()">Next</button>
+                        </div>
+                    </div>
+
+                    <!-- ==================================================== -->
+                    <!-- STEP 2: SELECT INSURANCE PLAN -->
+                    <!-- ==================================================== -->
+                    <div id="step-2" class="wizard-step d-none">
+                        <div class="mb-4">
+                            <label class="form-label small text-muted fw-semibold">Select an Insurance Plan</label>
+                            <select name="plan_tier" id="planTierSelect" class="form-select py-2">
+                                <option value="Basic" data-price="{{ plan.basic_amount }}" selected>Basic - ₹{{ plan.basic_amount }} /month</option>
+                                <option value="Medium" data-price="{{ plan.medium_amount }}">Medium - ₹{{ plan.medium_amount }} /month</option>
+                                <option value="Premium" data-price="{{ plan.premium_amount }}">Premium - ₹{{ plan.premium_amount }} /month</option>
+                            </select>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-link text-secondary text-decoration-none" onclick="goToStep(1)">&larr; Back</button>
+                            <button type="button" class="btn btn-primary px-4 py-2 rounded-3 fw-semibold" onclick="buildReviewSummary(); goToStep(3)">Next</button>
+                        </div>
+                    </div>
+
+                    <!-- ==================================================== -->
+                    <!-- STEP 3: REVIEW DETAILS -->
+                    <!-- ==================================================== -->
+                    <div id="step-3" class="wizard-step d-none">
+                        <h6 class="fw-bold text-dark mb-3">Review Your Details</h6>
+                        
+                        <div class="bg-light rounded-3 p-3 mb-4 text-start">
+                            <ul class="list-unstyled mb-0 small text-secondary" id="reviewDetailsList">
+                                <!-- Populated dynamically by JS -->
+                            </ul>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-link text-secondary text-decoration-none" onclick="goToStep(2)">&larr; Back</button>
+                            <button type="button" class="btn btn-primary px-4 py-2 rounded-3 fw-semibold" onclick="goToStep(4)">Pay</button>
+                        </div>
+                    </div>
+
+                    <!-- ==================================================== -->
+                    <!-- STEP 4: MAKE PAYMENT -->
+                    <!-- ==================================================== -->
+                    <div id="step-4" class="wizard-step d-none">
+                        <h6 class="fw-bold text-dark mb-2">Make Your Payment</h6>
+                        <p class="text-secondary small mb-4">Use UPI / Card / Net banking to complete payment.</p>
+
+                        <div class="bg-light p-3 rounded-3 mb-4 text-center border">
+                            <small class="text-muted d-block mb-1">Payable Amount</small>
+                            <h4 class="fw-bold text-success mb-0" id="paymentDisplayAmount">₹{{ plan.basic_amount }}</h4>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-link text-secondary text-decoration-none" onclick="goToStep(3)">&larr; Back</button>
+                            <button type="submit" class="btn btn-primary px-4 py-2 rounded-3 fw-semibold">Pay Now</button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================================================== -->
+<!-- STEP 5: PAYMENT SUCCESSFUL POPUP MODAL -->
+<!-- ==================================================== -->
+{% if success_policy %}
+<div class="modal fade show" id="paymentSuccessModal" tabindex="-1" style="display: block; background: rgba(0,0,0,0.6);" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+        <div class="modal-content rounded-4 border-0 p-4 text-center">
+            
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small fw-bold text-muted">Health Insurance Enrollment</span>
+                <a href="{% url 'my_policies' %}" class="text-secondary text-decoration-none fs-5">&times;</a>
+            </div>
+
+            <div class="py-4">
+                <div class="text-success mb-3">
+                    <i class="fa-solid fa-circle-check fa-4x text-success"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">Payment Successful!</h5>
+                <p class="text-muted small mb-3">Your insurance has been successfully registered.</p>
+
+                <!-- Auto-Generated Policy Number Badge -->
+                <div class="bg-light border rounded-3 p-3 mb-4">
+                    <small class="text-muted d-block mb-1">Generated Policy ID</small>
+                    <span class="fw-bold text-primary fs-5">{{ success_policy.policy_number }}</span>
+                </div>
+
+                <a href="{% url 'my_policies' %}" class="btn btn-primary w-100 py-2 rounded-3 fw-semibold">
+                    Close
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Wizard Flow & Dynamic Interaction Script -->
+<script>
+    let memberCount = 1;
+
+    function goToStep(stepNumber) {
+        document.querySelectorAll('.wizard-step').forEach(function(el) {
+            el.classList.add('d-none');
+        });
+        const current = document.getElementById('step-' + stepNumber);
+        if (current) {
+            current.classList.remove('d-none');
+        }
+
+        if (stepNumber === 4) {
+            const selectEl = document.getElementById('planTierSelect');
+            const amount = selectEl.options[selectEl.selectedIndex].getAttribute('data-price');
+            document.getElementById('paymentDisplayAmount').textContent = '₹' + amount;
+        }
+    }
+
+    function validateStep1AndProceed() {
+        const step1 = document.getElementById('step-1');
+        const inputs = step1.querySelectorAll('input[required]');
+        let isValid = true;
+
+        inputs.forEach(function(input) {
+            if (!input.value.trim()) {
+                input.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                input.classList.remove('is-invalid');
+            }
+        });
+
+        if (isValid) {
+            goToStep(2);
+        }
+    }
+
+    // Add Dynamic More Family Member
+    document.getElementById('addMemberBtn').addEventListener('click', function() {
+        memberCount++;
+        const container = document.getElementById('membersContainer');
+        const memberDiv = document.createElement('div');
+        memberDiv.className = 'member-card mb-3 pt-2 border-top position-relative';
+        memberDiv.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="small text-muted fw-semibold">Member ${memberCount}</span>
+                <button type="button" class="btn btn-sm text-danger border-0 p-0" onclick="this.closest('.member-card').remove()">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+            </div>
+            <div class="mb-2">
+                <input type="text" name="member_name[]" class="form-control form-control-sm py-2" placeholder="Full Name" required>
+            </div>
+            <div class="mb-2">
+                <input type="number" name="member_age[]" class="form-control form-control-sm py-2" placeholder="Age" min="1" max="100" required>
+            </div>
+            <div class="mb-2">
+                <select name="member_gender[]" class="form-select form-select-sm py-2" required>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="mb-2">
+                <input type="text" name="member_relation[]" class="form-control form-control-sm py-2" placeholder="Relation" required>
+            </div>
+        `;
+        container.appendChild(memberDiv);
+    });
+
+    // Step 3 Review Generation
+    function buildReviewSummary() {
+        const reviewList = document.getElementById('reviewDetailsList');
+        reviewList.innerHTML = '';
+
+        const names = document.getElementsByName('member_name[]');
+        const ages = document.getElementsByName('member_age[]');
+        const genders = document.getElementsByName('member_gender[]');
+        const relations = document.getElementsByName('member_relation[]');
+
+        let membersSummary = [];
+        for (let i = 0; i < names.length; i++) {
+            if (names[i].value.trim()) {
+                membersSummary.push(`${names[i].value.trim()}, ${ages[i].value.trim()}, ${genders[i].value.trim()}, ${relations[i].value.trim()}`);
+            }
+        }
+
+        const tierSelect = document.getElementById('planTierSelect');
+        const chosenPlanText = tierSelect.options[tierSelect.selectedIndex].text;
+
+        reviewList.innerHTML = `
+            <li class="mb-2"><i class="fa-solid fa-circle-check text-primary me-2"></i><strong>Member:</strong> ${membersSummary.join(' | ')}</li>
+            <li class="mb-2"><i class="fa-solid fa-circle-check text-primary me-2"></i><strong>Chosen Insurance Plan:</strong> ${chosenPlanText}</li>
+        `;
+    }
+</script>
+{% endblock %}

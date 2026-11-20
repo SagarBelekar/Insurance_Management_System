@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Manage Plans{% endblock %}
+{% block content %}
+
+{% load static %}
+
+<style>
+    body {
+        background-image: url("{% static 'admin_background.jpg' %}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        min-height: 100vh;
+    }
+</style>
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-5">
+            <div class="card card-custom p-4 mb-4">
+                <h5 class="fw-bold mb-3">Add New Insurance Plan</h5>
+                <form method="POST">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-2">
+                        <label class="form-label small mb-1">{{ field.label }}</label>
+                        {{ field }}
+                    </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary-custom w-100 mt-3">Add Plan</button>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <div class="card card-custom p-4">
+                <h5 class="fw-bold mb-3">Existing Plans</h5>
+                <ul class="list-group list-group-flush">
+                    {% for p in plans %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0 fw-bold">{{ p.title }}</h6>
+                            <small class="text-muted">{{ p.category.name }} | ₹{{ p.sum_insured }} Cover</small>
+                        </div>
+                        <span class="badge bg-primary rounded-pill">₹{{ p.premium_amount }}/yr</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

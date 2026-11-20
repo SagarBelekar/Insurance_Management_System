@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Admin Profile - SecureLife{% endblock %}
+
+{% block content %}
+
+
+{% load static %}
+
+<style>
+    body {
+        background-image: url("{% static 'admin_background.jpg' %}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        min-height: 100vh;
+    }
+</style>
+
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card card-custom border-0 shadow-lg p-4 bg-white text-center">
+                
+                <!-- Admin Badge -->
+                <div class="rounded-circle bg-danger-subtle text-danger mx-auto d-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                    <i class="fa-solid fa-user-shield fa-2x"></i>
+                </div>
+                
+                <h4 class="fw-bold mb-1">{{ admin_user.username }}</h4>
+                <span class="badge bg-danger w-auto align-self-center px-3 py-1 mb-4">
+                    <i class="fa-solid fa-crown me-1"></i> Superuser Administrator
+                </span>
+
+                <!-- Createsuperuser Actual Details -->
+                <div class="text-start bg-light rounded-3 p-3 mb-4">
+                    <div class="mb-3 border-bottom pb-2">
+                        <label class="text-muted small fw-semibold text-uppercase d-block">Admin Username</label>
+                        <span class="fs-6 fw-bold text-dark">{{ admin_user.username }}</span>
+                    </div>
+
+                    <div class="mb-3 border-bottom pb-2">
+                        <label class="text-muted small fw-semibold text-uppercase d-block">Admin Email</label>
+                        <span class="fs-6 fw-semibold text-dark">
+                            {% if admin_user.email %}
+                                {{ admin_user.email }}
+                            {% else %}
+                                <span class="text-muted fst-italic">Not provided during setup</span>
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <div class="mb-3 border-bottom pb-2">
+                        <label class="text-muted small fw-semibold text-uppercase d-block">Account Status</label>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">
+                            <i class="fa-solid fa-check-circle me-1"></i> Active Superuser
+                        </span>
+                    </div>
+
+                    <div>
+                        <label class="text-muted small fw-semibold text-uppercase d-block">Created On</label>
+                        <span class="text-secondary small">
+                            <i class="fa-regular fa-calendar-check me-1"></i> {{ admin_user.date_joined|date:"d M, Y (h:i A)" }}
+                        </span>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

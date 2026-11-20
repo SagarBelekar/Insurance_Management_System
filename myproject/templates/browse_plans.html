@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Available Insurance Plans - SecureLife{% endblock %}
+
+{% block content %}
+
+
+{% load static %}
+
+<style>
+    body {
+        background-image: url("{% static 'user_background.png' %}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        min-height: 100vh;
+    }
+</style>
+
+
+
+<div class="container py-1">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold text-white mb-2">Available Insurance Plans</h2>
+    </div>
+
+    <div class="row g-4">
+        {% for plan in plans %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4 p-4 bg-white d-flex flex-column justify-content-between">
+                <div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                            <i class="fa-solid fa-shield-halved me-1"></i> Verified Policy
+                        </span>
+                        <span class="badge bg-light text-secondary border">
+                            {{ plan.tenure_years }} Year{% if plan.tenure_years > 1 %}s{% endif %}
+                        </span>
+                    </div>
+
+                    <h5 class="fw-bold text-dark mb-2">{{ plan.title }}</h5>
+                    <p class="text-muted small mb-4" style="min-height: 48px;">{{ plan.description }}</p>
+
+                    <div class="bg-light rounded-3 p-3 mb-4 border">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small">Sum Insured:</span>
+                            <strong class="text-dark">₹{{ plan.sum_insured }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted small">Starting From:</span>
+                            <strong class="text-success fs-6">₹{{ plan.basic_amount }} / yr</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <a href="{% url 'buy_policy' plan.id %}" class="btn btn-primary w-100 py-2 rounded-3 fw-semibold shadow-sm">
+                        Buy Now
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <p class="text-muted">No insurance plans are currently available.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
